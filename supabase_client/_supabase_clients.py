@@ -144,7 +144,7 @@ class TableClient(TableQueryBuilder):
         data = target.items()
         endpoint = f"{self.base_url}?"
         for k, v in data:
-            endpoint += f"{k}=eq.{v}&" 
+            endpoint += f"{k}={v}&" 
         endpoint = endpoint[:-1]
         try:
             async with HTTPClient(endpoint, headers=self.headers) as session:
