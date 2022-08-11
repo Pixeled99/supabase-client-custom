@@ -1,5 +1,6 @@
 import aiohttp
 import urllib.parse
+from urllib.parse import quote, urlencode
 
 from ._http_client import HTTPClient
 from .querybuilders import TableQueryBuilder
@@ -42,6 +43,7 @@ class TableClient(TableQueryBuilder):
 
     def __init__(self, api_url, table_name, headers={}, raise_error=True):
         self.base_url = api_url + "/" + table_name
+        self.raw_url = api_url + "/"
         self.name    = table_name
         self.headers = headers
         self.success_status_codes = list(range(200,300))
@@ -140,16 +142,27 @@ class TableClient(TableQueryBuilder):
         >>> # Provided there is an existing table called `posts`
         >>> supabase.table("posts").delete("id", 3)
         """
-        data = target
-        endpoint = f"{self.base_url}?{urllib.parse.urlencode(data)}"
-        
+        data = target.items()
+        endpoint = f"{self.base_url}?"
+        for k, v in data:
+            endpoint += f"{k}=eq.{v}&" 
+        endpoint = endpoint[:-1]
         try:
             async with HTTPClient(endpoint, headers=self.headers) as session:
                 response, json_data = await session.requests("DELETE")
                 return self._error(response, json_data), json_data
         except aiohttp.ClientConnectorError as err:
             raise ClientConnectorError(str(err))
+    
+    async def orquery(self, data):
+        url = self.raw_url + "or=" + urllib.parse.urlencode(data)
 
+        try:
+            async with HTTPClient(url, headers=self.headers) as session:
+                response, json_data = await session.requests("GET")
+                return self._error(response, json_data), json_data
+        except aiohttp.ClientConnectorError as err:
+            raise ClientConnectorError(str(err))
 
     async def query(self):
         """
@@ -162,7 +175,6 @@ class TableClient(TableQueryBuilder):
                 async with HTTPClient(self._as_url, headers=self.headers) as session:
                     response, json_data = await session.requests("GET")
                     return self._error(response, json_data), json_data
-
             except aiohttp.ClientConnectorError as err:
                 raise ClientConnectorError(str(err))
 
