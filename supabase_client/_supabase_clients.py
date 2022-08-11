@@ -43,7 +43,6 @@ class TableClient(TableQueryBuilder):
 
     def __init__(self, api_url, table_name, headers={}, raise_error=True):
         self.base_url = api_url + "/" + table_name
-        self.raw_url = api_url + "/"
         self.name    = table_name
         self.headers = headers
         self.success_status_codes = list(range(200,300))
@@ -155,7 +154,7 @@ class TableClient(TableQueryBuilder):
             raise ClientConnectorError(str(err))
     
     async def orquery(self, data):
-        url = self.raw_url + "or=" + urllib.parse.urlencode(data)
+        url = self.base_url + "or=" + urllib.parse.urlencode(data)
 
         try:
             async with HTTPClient(url, headers=self.headers) as session:
