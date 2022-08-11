@@ -153,8 +153,8 @@ class TableClient(TableQueryBuilder):
         except aiohttp.ClientConnectorError as err:
             raise ClientConnectorError(str(err))
     
-    async def orquery(self, data):
-        url = self.base_url + "or=" + urllib.parse.urlencode(data)
+    async def customqeury(self, data):
+        url = self.base_url + "?" + data
 
         try:
             async with HTTPClient(url, headers=self.headers) as session:
