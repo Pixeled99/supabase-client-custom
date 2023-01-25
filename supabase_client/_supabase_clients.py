@@ -141,7 +141,7 @@ class TableClient(TableQueryBuilder):
         data = target.items()
         endpoint = f"{self.base_url}?"
         for k, v in data:
-            endpoint += f"{k}={v}&" 
+            endpoint += f"{k}={v}&"
         endpoint = endpoint[:-1]
         try:
             async with HTTPClient(endpoint, headers=self.headers) as session:
@@ -149,7 +149,7 @@ class TableClient(TableQueryBuilder):
                 return self._error(response, json_data), json_data
         except aiohttp.ClientConnectorError as err:
             raise ClientConnectorError(str(err))
-    
+
     async def customqeury(self, data):
         url = self.base_url + "?" + data
 
